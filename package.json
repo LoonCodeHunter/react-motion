@@ -1,0 +1,150 @@
+{
+  "name": "@kovari/react-motion",
+  "version": "0.1.0",
+  "description": "ESM-first motion primitives for React, TypeScript, JavaScript and Kovari Code IDE.",
+  "type": "module",
+  "main": "./dist/es/index.js",
+  "module": "./dist/es/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/es/index.js",
+      "default": "./dist/es/index.js"
+    },
+    "./client": {
+      "types": "./dist/types/client.d.ts",
+      "import": "./dist/es/client.js",
+      "default": "./dist/es/client.js"
+    },
+    "./debug": {
+      "types": "./dist/types/debug.d.ts",
+      "import": "./dist/es/debug.js",
+      "default": "./dist/es/debug.js"
+    },
+    "./dom": {
+      "types": "./dist/types/dom.d.ts",
+      "import": "./dist/es/dom.js",
+      "default": "./dist/es/dom.js"
+    },
+    "./easing": {
+      "types": "./dist/types/easing.d.ts",
+      "import": "./dist/es/easing.js",
+      "default": "./dist/es/easing.js"
+    },
+    "./gestures": {
+      "types": "./dist/types/gestures.d.ts",
+      "import": "./dist/es/gestures.js",
+      "default": "./dist/es/gestures.js"
+    },
+    "./layout": {
+      "types": "./dist/types/layout.d.ts",
+      "import": "./dist/es/layout.js",
+      "default": "./dist/es/layout.js"
+    },
+    "./mini": {
+      "types": "./dist/types/mini.d.ts",
+      "import": "./dist/es/mini.js",
+      "default": "./dist/es/mini.js"
+    },
+    "./motion-value": {
+      "types": "./dist/types/motion-value.d.ts",
+      "import": "./dist/es/motion-value.js",
+      "default": "./dist/es/motion-value.js"
+    },
+    "./react": {
+      "types": "./dist/types/react.d.ts",
+      "import": "./dist/es/react.js",
+      "default": "./dist/es/react.js"
+    },
+    "./scroll": {
+      "types": "./dist/types/scroll.d.ts",
+      "import": "./dist/es/scroll.js",
+      "default": "./dist/es/scroll.js"
+    },
+    "./spring": {
+      "types": "./dist/types/spring.d.ts",
+      "import": "./dist/es/spring.js",
+      "default": "./dist/es/spring.js"
+    },
+    "./timeline": {
+      "types": "./dist/types/timeline.d.ts",
+      "import": "./dist/es/timeline.js",
+      "default": "./dist/es/timeline.js"
+    },
+    "./styles.css": "./dist/es/styles.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/es",
+    "dist/types",
+    "assets",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "VALIDATION.md"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "LoonCodeHunter",
+    "url": "https://github.com/LoonCodeHunter"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LoonCodeHunter/react-motion.git"
+  },
+  "homepage": "https://github.com/LoonCodeHunter/react-motion#readme",
+  "bugs": {
+    "url": "https://github.com/LoonCodeHunter/react-motion/issues"
+  },
+  "keywords": [
+    "react",
+    "motion",
+    "animation",
+    "spring",
+    "timeline",
+    "gestures",
+    "scroll",
+    "layout",
+    "typescript",
+    "esm",
+    "kovari"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build:es": "tsc -p tsconfig.es.json && node scripts/copy-css.mjs",
+    "build:types": "tsc -p tsconfig.types.json",
+    "build": "npm run clean && npm run build:es && npm run build:types && node scripts/verify.mjs",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "check": "npm run typecheck && npm test && npm run pack:dry",
+    "pack:dry": "npm pack --dry-run --ignore-scripts",
+    "publish:dry": "npm publish --dry-run --access public --ignore-scripts",
+    "prepack": "npm run check"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "typescript": "^6.0.2"
+  }
+}

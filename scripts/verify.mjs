@@ -1,0 +1,1 @@
+import{access}from'node:fs/promises';for(const d of['es','types'])await access('dist/'+d);for(const f of['dist/es/index.js','dist/es/styles.css','dist/types/index.d.ts'])await access(f);console.log('ESM/types distribution verified');

@@ -1,0 +1,1 @@
+let enabled=false;const entries:any[]=[];export const debug={enable:()=>enabled=true,disable:()=>enabled=false,clear:()=>entries.splice(0),log:(scope:string,message:string,data?:unknown)=>{if(enabled)entries.push(Object.freeze({scope,message,data,time:Date.now()}))},records:()=>Object.freeze([...entries])};
