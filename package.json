@@ -1,6 +1,6 @@
 {
   "name": "@kovari/react-motion",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ESM-first motion primitives for React, TypeScript, JavaScript and Kovari Code IDE.",
   "type": "module",
   "main": "./dist/es/index.js",
@@ -145,6 +145,7 @@
     }
   },
   "devDependencies": {
+    "@types/node": "22.18.11",
     "typescript": "^6.0.2"
   }
 }

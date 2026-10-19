@@ -1,0 +1,309 @@
+name: Motion Score
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - motion-score.json
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * 1"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: motion-score-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    name: Benchmark latest published package
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Create isolated browser benchmark
+        shell: bash
+        run: |
+          mkdir -p .motion-score-run
+          cd .motion-score-run
+          npm init -y
+          npm install --ignore-scripts --no-audit --no-fund @kovari/react-motion@latest vite playwright
+          npx playwright install --with-deps chromium
+
+          cat > index.html <<'HTML'
+          <!doctype html>
+          <html lang="en">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+              <title>Kovari React Motion benchmark</title>
+            </head>
+            <body>
+              <main id="stage"></main>
+              <script type="module" src="/bench.js"></script>
+            </body>
+          </html>
+          HTML
+
+          cat > bench.js <<'JS'
+          import { animate, motionValue, spring, stagger } from "@kovari/react-motion";
+
+          const clamp = (value, min = 0, max = 100) => Math.max(min, Math.min(max, value));
+          const median = (values) => {
+            const sorted = [...values].sort((a, b) => a - b);
+            const middle = Math.floor(sorted.length / 2);
+            return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+          };
+          const stage = document.querySelector("#stage");
+          const makeTarget = () => {
+            const element = document.createElement("div");
+            Object.assign(element.style, {
+              width: "18px", height: "18px", margin: "1px", display: "inline-block",
+              borderRadius: "50%", background: "#2563eb", opacity: "0", transform: "translateY(8px)",
+            });
+            stage.append(element);
+            return element;
+          };
+
+          async function runBenchmark() {
+            // Confirm the public timing helper can generate ordered delays.
+            const delay = stagger(12, 4);
+            const staggerCheck = delay(0) === 4 && delay(3) === 40;
+            if (!staggerCheck) throw new Error("stagger() returned unexpected values");
+
+            // Exercise spring sampling, recording throughput rather than assuming a fixed score.
+            const springStart = performance.now();
+            let springSampleCount = 0;
+            for (let i = 0; i < 180; i += 1) {
+              springSampleCount += spring({ stiffness: 220, damping: 18, mass: 1 }).sample(90).length;
+            }
+            const springElapsedMs = Math.max(1, performance.now() - springStart);
+            const springSamplesPerSecond = springSampleCount / (springElapsedMs / 1000);
+
+            // Exercise observable value updates with a subscriber attached.
+            const value = motionValue(0);
+            let notifications = 0;
+            const unsubscribe = value.subscribe(() => { notifications += 1; });
+            const updateCount = 50000;
+            const valueStart = performance.now();
+            for (let i = 1; i <= updateCount; i += 1) value.set(i);
+            const valueElapsedMs = Math.max(1, performance.now() - valueStart);
+            unsubscribe();
+            if (notifications !== updateCount) throw new Error(`MotionValue notifications mismatch: ${notifications}`);
+            const motionValueUpdatesPerSecond = updateCount / (valueElapsedMs / 1000);
+
+            // Measure observed completion time for short native animations wrapped by the package.
+            const timingSamples = [];
+            const timingTarget = makeTarget();
+            for (let i = 0; i < 7; i += 1) {
+              const started = performance.now();
+              const animation = animate(timingTarget, [
+                { opacity: 0, transform: "translateY(8px)" },
+                { opacity: 1, transform: "translateY(0px)" },
+              ], { duration: 96, easing: "linear", fill: "both", reducedMotion: false });
+              await animation.finished;
+              timingSamples.push(performance.now() - started);
+              animation.cancel();
+            }
+            const animationMedianMs = median(timingSamples);
+            timingTarget.remove();
+
+            // Observe requestAnimationFrame cadence while a small batch of animations runs.
+            const targets = Array.from({ length: 12 }, makeTarget);
+            const activeAnimations = targets.map((element, index) => animate(element, [
+              { opacity: 0, transform: "translateY(12px) scale(.95)" },
+              { opacity: 1, transform: "translateY(0px) scale(1)" },
+            ], { duration: 920, delay: delay(index), easing: "ease-out", fill: "both", reducedMotion: false }));
+
+            const frameResult = await new Promise((resolve) => {
+              const start = performance.now();
+              let previous = null;
+              const deltas = [];
+              function tick(now) {
+                if (previous !== null) deltas.push(now - previous);
+                previous = now;
+                if (now - start < 1000) requestAnimationFrame(tick);
+                else {
+                  const elapsedMs = Math.max(1, now - start);
+                  const fps = deltas.length / (elapsedMs / 1000);
+                  const dropped = deltas.filter((delta) => delta > 24).length;
+                  resolve({
+                    measuredFps: fps,
+                    droppedFramePercent: deltas.length ? dropped / deltas.length * 100 : 100,
+                    frameSamples: deltas.length,
+                    frameWindowMs: elapsedMs,
+                  });
+                }
+              }
+              requestAnimationFrame(tick);
+            });
+            await Promise.all(activeAnimations.map((animation) => animation.finished.catch(() => undefined)));
+            activeAnimations.forEach((animation) => animation.cancel());
+            targets.forEach((element) => element.remove());
+
+            // The score is a documented CI comparison index, not a universal animation-quality rating.
+            const frameScore = clamp(100 - Math.max(0, 60 - frameResult.measuredFps) * 2.5 - frameResult.droppedFramePercent * 1.1);
+            const springScore = clamp(springSamplesPerSecond / 150000 * 100);
+            const valueScore = clamp(motionValueUpdatesPerSecond / 200000 * 100);
+            const timingScore = clamp(100 - Math.abs(animationMedianMs - 96) / 96 * 100);
+            const score = Math.round(frameScore * 0.4 + springScore * 0.2 + valueScore * 0.2 + timingScore * 0.2);
+
+            return {
+              score,
+              components: {
+                frameScore: Math.round(frameScore),
+                springScore: Math.round(springScore),
+                motionValueScore: Math.round(valueScore),
+                animationTimingScore: Math.round(timingScore),
+              },
+              metrics: {
+                measuredFps: Number(frameResult.measuredFps.toFixed(2)),
+                droppedFramePercent: Number(frameResult.droppedFramePercent.toFixed(2)),
+                frameSamples: frameResult.frameSamples,
+                animationMedianMs: Number(animationMedianMs.toFixed(2)),
+                expectedAnimationDurationMs: 96,
+                springSamplesPerSecond: Math.round(springSamplesPerSecond),
+                motionValueUpdatesPerSecond: Math.round(motionValueUpdatesPerSecond),
+                motionValueNotifications: notifications,
+                staggerCheck,
+              },
+              methodology: "Weighted browser CI index: frame cadence 40%, spring sampling throughput 20%, MotionValue update throughput 20%, and 96 ms animation completion timing 20%. Higher is better within comparable runner/browser environments; this is not a universal industry score.",
+            };
+          }
+
+          runBenchmark().then((result) => {
+            window.__MOTION_SCORE_RESULT__ = result;
+          }).catch((error) => {
+            window.__MOTION_SCORE_ERROR__ = String(error && (error.stack || error.message) || error);
+          });
+          JS
+
+          cat > score-runner.mjs <<'JS'
+          import { chromium } from "playwright";
+          import { appendFile, readFile, writeFile } from "node:fs/promises";
+          import { resolve } from "node:path";
+
+          const packageJson = JSON.parse(await readFile("node_modules/@kovari/react-motion/package.json", "utf8"));
+          const browser = await chromium.launch({ headless: true, args: ["--disable-dev-shm-usage"] });
+          try {
+            const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 });
+            page.on("pageerror", (error) => console.error("Browser page error:", error.message));
+            await page.goto("http://127.0.0.1:4173/", { waitUntil: "load" });
+            await page.waitForFunction(
+              () => window.__MOTION_SCORE_RESULT__ !== undefined || window.__MOTION_SCORE_ERROR__ !== undefined,
+              null,
+              { timeout: 60000 },
+            );
+            const pageResult = await page.evaluate(() => ({ result: window.__MOTION_SCORE_RESULT__, error: window.__MOTION_SCORE_ERROR__ }));
+            if (pageResult.error) throw new Error(`Browser benchmark failed: ${pageResult.error}`);
+            if (!pageResult.result || !Number.isFinite(pageResult.result.score)) throw new Error("Benchmark did not return a valid score");
+
+            const result = {
+              schemaVersion: 1,
+              label: "Motion Score",
+              message: `${pageResult.result.score}/100`,
+              color: pageResult.result.score >= 90 ? "brightgreen" : pageResult.result.score >= 78 ? "green" : pageResult.result.score >= 62 ? "yellow" : "orange",
+              namedLogo: "speedtest",
+              package: "@kovari/react-motion",
+              packageVersion: packageJson.version,
+              score: pageResult.result.score,
+              components: pageResult.result.components,
+              metrics: pageResult.result.metrics,
+              methodology: pageResult.result.methodology,
+              generatedAt: new Date().toISOString(),
+              runner: `ubuntu-latest / Chromium / Node ${process.version}`,
+            };
+            const outputPath = resolve(process.cwd(), "..", "motion-score.json");
+            await writeFile(outputPath, `${JSON.stringify(result, null, 2)}\n`);
+            console.log(JSON.stringify(result, null, 2));
+
+            const summaryPath = process.env.GITHUB_STEP_SUMMARY;
+            if (summaryPath) {
+              const summary = [
+                `# Kovari React Motion — Motion Score`,
+                ``,
+                `**Score: ${result.score}/100** · Tested npm release: **${result.packageVersion}**`,
+                ``,
+                `| Metric | Result |`,
+                `|---|---:|`,
+                `| Observed animation frame rate | ${result.metrics.measuredFps} FPS |`,
+                `| Frames over 24 ms | ${result.metrics.droppedFramePercent}% |`,
+                `| Median 96 ms animation completion | ${result.metrics.animationMedianMs} ms |`,
+                `| Spring samples per second | ${result.metrics.springSamplesPerSecond.toLocaleString()} |`,
+                `| MotionValue updates per second | ${result.metrics.motionValueUpdatesPerSecond.toLocaleString()} |`,
+                `| MotionValue listener notifications | ${result.metrics.motionValueNotifications.toLocaleString()} |`,
+                ``,
+                `## Scoring weights`,
+                ``,
+                `| Component | Score | Weight |`,
+                `|---|---:|---:|`,
+                `| Frame cadence | ${result.components.frameScore}/100 | 40% |`,
+                `| Spring sampling | ${result.components.springScore}/100 | 20% |`,
+                `| MotionValue updates | ${result.components.motionValueScore}/100 | 20% |`,
+                `| Animation timing | ${result.components.animationTimingScore}/100 | 20% |`,
+                ``,
+                `> ${result.methodology}`,
+                ``,
+                `The score is hardware-, browser- and runner-sensitive. Compare trends on the same GitHub-hosted runner; it is not an accessibility, correctness, or universal quality certification.`,
+                ``,
+              ].join("\n");
+              await appendFile(summaryPath, summary);
+            }
+          } finally {
+            await browser.close();
+          }
+          JS
+
+      - name: Start benchmark server
+        shell: bash
+        run: |
+          cd .motion-score-run
+          npx vite --host 127.0.0.1 --port 4173 > vite.log 2>&1 &
+          echo $! > vite.pid
+          for attempt in $(seq 1 30); do
+            if curl --silent --fail http://127.0.0.1:4173/ > /dev/null; then
+              echo "Vite benchmark server is ready."
+              exit 0
+            fi
+            sleep 1
+          done
+          cat vite.log
+          exit 1
+
+      - name: Run benchmark and generate score
+        run: node score-runner.mjs
+        working-directory: .motion-score-run
+
+      - name: Upload score JSON
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kovari-react-motion-score
+          path: motion-score.json
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Update tracked Motion Score badge data
+        if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add motion-score.json
+          if git diff --cached --quiet; then
+            echo "Motion Score JSON is unchanged; no commit is necessary."
+          else
+            git commit -m "chore(motion-score): update benchmark results [skip ci]"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
