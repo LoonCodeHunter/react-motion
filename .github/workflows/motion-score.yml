@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      # Updating only the badge JSON must not create an infinite workflow loop.
+      # A score-only commit must not cause an endless benchmark/commit loop.
       - motion-score.json
   pull_request:
     branches: [main]
@@ -12,8 +12,7 @@ on:
   schedule:
     - cron: '17 4 * * 1'
 
-# Browser benchmark code has no write token. Only update-score can push the
-# measured, schema-validated score JSON to the repository.
+# Benchmarking is read-only. Only the optional score publication job can write.
 permissions:
   contents: read
 
@@ -23,28 +22,55 @@ concurrency:
 
 jobs:
   benchmark:
-    name: Benchmark the latest published npm release
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    name: Build and benchmark this commit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     permissions:
       contents: read
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v4
+      - name: Check out source
+        uses: actions/checkout@v7
 
       - name: Set up Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
+          cache: npm
 
-      - name: Install an isolated benchmark environment
+      - name: Build and pack the exact source under test
+        id: package-under-test
         shell: bash
+        run: |
+          set -euo pipefail
+          npm run verify:lockfile
+          npm ci --prefer-online --no-audit --no-fund
+          npm run build
+
+          PACKAGE_DIR="$RUNNER_TEMP/motion-score-package"
+          mkdir -p "$PACKAGE_DIR"
+          npm pack --ignore-scripts --pack-destination "$PACKAGE_DIR" --silent
+
+          PACKAGE_TARBALL="$(find "$PACKAGE_DIR" -maxdepth 1 -type f -name '*.tgz' -print -quit)"
+          if [ -z "$PACKAGE_TARBALL" ] || [ ! -s "$PACKAGE_TARBALL" ]; then
+            echo 'The local React Motion package tarball was not created.' >&2
+            exit 1
+          fi
+          echo "tarball=$PACKAGE_TARBALL" >> "$GITHUB_OUTPUT"
+          echo "Prepared package tarball: $(basename "$PACKAGE_TARBALL")"
+
+      - name: Install isolated browser benchmark dependencies
+        shell: bash
+        env:
+          PACKAGE_TARBALL: ${{ steps.package-under-test.outputs.tarball }}
         run: |
           set -euo pipefail
           mkdir -p .motion-score-run
           cd .motion-score-run
           npm init -y
-          npm install --ignore-scripts --no-audit --no-fund @kovari/react-motion@latest vite playwright
+          npm config set fetch-retries 5
+          npm config set fetch-retry-mintimeout 10000
+          npm config set fetch-retry-maxtimeout 120000
+          npm install --ignore-scripts --no-audit --no-fund vite playwright "$PACKAGE_TARBALL"
           npx playwright install --with-deps chromium
           cp ../scripts/motion-score/index.html ./index.html
           cp ../scripts/motion-score/bench.js ./bench.js
@@ -65,7 +91,7 @@ jobs:
           trap cleanup EXIT
 
           ready=0
-          for attempt in $(seq 1 30); do
+          for attempt in $(seq 1 45); do
             if curl --silent --fail http://127.0.0.1:4173/ > /dev/null; then
               echo "Vite benchmark server is ready (attempt ${attempt})."
               ready=1
@@ -75,35 +101,51 @@ jobs:
           done
           if [ "$ready" -ne 1 ]; then
             cat vite.log
-            echo 'Vite benchmark server did not start within 30 seconds.' >&2
+            echo 'Vite benchmark server did not start within 45 seconds.' >&2
             exit 1
           fi
           node score-runner.mjs
 
-      - name: Validate Shields endpoint JSON and score bounds
+      - name: Validate score JSON and score bounds
         shell: bash
         run: |
           set -euo pipefail
           node --input-type=module <<'NODE'
           import { readFile } from 'node:fs/promises';
+
           const score = JSON.parse(await readFile('motion-score.json', 'utf8'));
           const colours = new Set(['red', 'yellow', 'green', 'yellowgreen']);
+          const components = ['frameScore', 'springScore', 'motionValueScore', 'animationTimingScore'];
+
           if (score.schemaVersion !== 1) throw new Error('Unsupported Motion Score schemaVersion.');
           if (score.package !== '@kovari/react-motion') throw new Error('Unexpected package name in score JSON.');
           if (!Number.isInteger(score.score) || score.score < 0 || score.score > 100) throw new Error('Score must be an integer from 0 to 100.');
           if (score.message !== `${score.score}/100`) throw new Error('Badge message does not match the numeric score.');
           if (!colours.has(score.color)) throw new Error(`Unexpected badge colour: ${score.color}`);
-          if (!score.packageVersion || !score.generatedAt || !score.metrics || !score.components) throw new Error('Score JSON is missing benchmark metadata.');
-          for (const key of ['frameScore', 'springScore', 'motionValueScore', 'animationTimingScore']) {
+          if (typeof score.packageVersion !== 'string' || !score.packageVersion) throw new Error('Missing package version.');
+          if (typeof score.sourceCommit !== 'string' || !score.sourceCommit) throw new Error('Missing source commit.');
+          if (typeof score.generatedAt !== 'string' || Number.isNaN(Date.parse(score.generatedAt))) throw new Error('generatedAt must be a valid ISO date.');
+          if (!score.metrics || !score.components) throw new Error('Score JSON is missing benchmark measurements.');
+
+          for (const key of components) {
             const value = score.components[key];
-            if (!Number.isInteger(value) || value < 0 || value > 100) throw new Error(`Invalid component score: ${key}`);
+            if (!Number.isInteger(value) || value < 0 || value > 100) {
+              throw new Error(`Invalid component score: ${key}`);
+            }
           }
-          console.log(`Validated Motion Score ${score.score}/100 (${score.color}) for package ${score.packageVersion}.`);
+
+          for (const key of ['measuredFps', 'droppedFramePercent', 'animationMedianMs', 'springSamplesPerSecond', 'motionValueUpdatesPerSecond']) {
+            if (typeof score.metrics[key] !== 'number' || !Number.isFinite(score.metrics[key])) {
+              throw new Error(`Invalid benchmark metric: ${key}`);
+            }
+          }
+
+          console.log(`Validated Motion Score ${score.score}/100 (${score.color}) for ${score.package}@${score.packageVersion}.`);
           NODE
 
-      - name: Upload the score and raw measurements
+      - name: Upload measured score JSON
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: kovari-react-motion-score
           path: motion-score.json
@@ -111,22 +153,22 @@ jobs:
           retention-days: 30
 
   update-score:
-    name: Update the public score badge data
+    name: Publish score badge data
     needs: benchmark
     if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
       contents: write
     steps:
       - name: Check out the default branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: main
           persist-credentials: true
 
       - name: Download the measured score
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: kovari-react-motion-score
           path: .score-artifact
@@ -135,19 +177,22 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -f .score-artifact/motion-score.json
+          test -s .score-artifact/motion-score.json
           node --input-type=module <<'NODE'
           import { readFile } from 'node:fs/promises';
-          const data = JSON.parse(await readFile('.score-artifact/motion-score.json', 'utf8'));
+          const score = JSON.parse(await readFile('.score-artifact/motion-score.json', 'utf8'));
           const colours = new Set(['red', 'yellow', 'green', 'yellowgreen']);
-          if (data.schemaVersion !== 1 || data.package !== '@kovari/react-motion') throw new Error('Unexpected Motion Score schema/package.');
-          if (!Number.isInteger(data.score) || data.score < 0 || data.score > 100) throw new Error('Motion Score must be an integer from 0 to 100.');
-          if (data.message !== `${data.score}/100` || !colours.has(data.color)) throw new Error('Invalid badge message or colour.');
-          if (!data.packageVersion || !data.generatedAt || !data.metrics || !data.components) throw new Error('Incomplete benchmark output.');
+          if (score.schemaVersion !== 1 || score.package !== '@kovari/react-motion') throw new Error('Unexpected Motion Score schema/package.');
+          if (!Number.isInteger(score.score) || score.score < 0 || score.score > 100) throw new Error('Score must be an integer from 0 to 100.');
+          if (score.message !== `${score.score}/100` || !colours.has(score.color)) throw new Error('Invalid badge message or colour.');
+          if (typeof score.packageVersion !== 'string' || !score.packageVersion) throw new Error('Missing package version.');
+          if (typeof score.sourceCommit !== 'string' || !score.sourceCommit) throw new Error('Missing source commit.');
+          if (typeof score.generatedAt !== 'string' || Number.isNaN(Date.parse(score.generatedAt))) throw new Error('Invalid generatedAt timestamp.');
+          if (!score.metrics || !score.components) throw new Error('Incomplete benchmark output.');
           NODE
           cp .score-artifact/motion-score.json motion-score.json
 
-      - name: Commit changed score data
+      - name: Commit and publish score data
         shell: bash
         run: |
           set -euo pipefail
@@ -158,5 +203,10 @@ jobs:
             echo 'Score JSON is unchanged; no commit is needed.'
             exit 0
           fi
+
           git commit -m 'chore(motion-score): update measured score [skip ci]'
-          git push origin HEAD:main
+          if git push origin HEAD:main; then
+            echo 'Published the updated Motion Score JSON to main.'
+          else
+            echo '::warning::The benchmark passed, but GitHub rejected the score-only push. Check Actions write permissions and main-branch protection; the measured JSON remains available in the workflow artifact.'
+          fi
