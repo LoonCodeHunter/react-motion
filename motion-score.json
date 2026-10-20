@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "label": "Motion Score",
+  "message": "pending",
+  "color": "lightgrey",
+  "namedLogo": "speedtest",
+  "package": "@kovari/react-motion",
+  "score": null,
+  "methodology": "Awaiting the first successful GitHub Actions browser benchmark.",
+  "generatedAt": null
+}

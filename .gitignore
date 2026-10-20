@@ -2,3 +2,9 @@ node_modules/
 dist/
 *.tgz
 coverage/
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+.motion-score-run/

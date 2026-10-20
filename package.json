@@ -1,6 +1,6 @@
 {
   "name": "@kovari/react-motion",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "ESM-first motion primitives for React, TypeScript, JavaScript and Kovari Code IDE.",
   "type": "module",
   "main": "./dist/es/index.js",
@@ -82,7 +82,8 @@
     "README.md",
     "LICENSE",
     "CHANGELOG.md",
-    "VALIDATION.md"
+    "VALIDATION.md",
+    "docs"
   ],
   "sideEffects": [
     "**/*.css"
@@ -114,7 +115,7 @@
     "kovari"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=20.19"
   },
   "scripts": {
     "clean": "node scripts/clean.mjs",
@@ -125,8 +126,11 @@
     "test": "npm run build && node --test tests/*.test.mjs",
     "check": "npm run typecheck && npm test && npm run pack:dry",
     "pack:dry": "npm pack --dry-run --ignore-scripts",
-    "publish:dry": "npm publish --dry-run --access public --ignore-scripts",
-    "prepack": "npm run check"
+    "publish:dry": "npm publish --dry-run --access public --ignore-scripts --provenance=false",
+    "prepack": "npm run check",
+    "pack:verify": "node scripts/verify.mjs",
+    "security": "npm audit --audit-level=high",
+    "release:check": "npm run check && npm run pack:verify && npm run pack:dry && npm run publish:dry"
   },
   "publishConfig": {
     "access": "public",

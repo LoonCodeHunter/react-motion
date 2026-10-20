@@ -1,0 +1,392 @@
+import { useEffect, useRef, useState } from "react";
+import { animate, motionValue, scroll, spring, stagger } from "@kovari/react-motion";
+
+export const panelStyle = {
+  border: "1px solid #263348",
+  borderRadius: 18,
+  padding: 20,
+  margin: "22px 0",
+  background: "linear-gradient(145deg, #0b1220 0%, #101b2d 100%)",
+  color: "#e6edf7",
+  boxShadow: "0 16px 44px rgba(0,0,0,.18)",
+};
+
+export const buttonStyle = {
+  border: "1px solid #435778",
+  borderRadius: 11,
+  padding: "10px 14px",
+  background: "#172943",
+  color: "#f7fbff",
+  fontWeight: 650,
+  cursor: "pointer",
+  touchAction: "manipulation",
+};
+
+export function useReducedMotionPreference() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduced(query.matches);
+    update();
+    if (query.addEventListener) query.addEventListener("change", update);
+    else query.addListener(update);
+    return () => {
+      if (query.removeEventListener) query.removeEventListener("change", update);
+      else query.removeListener(update);
+    };
+  }, []);
+  return reduced;
+}
+
+export function BubbleLab() {
+  const stageRef = useRef(null);
+  const bubbleRefs = useRef(new Map());
+  const animations = useRef(new Map());
+  const started = useRef(new Set());
+  const [bubbles, setBubbles] = useState([]);
+  const reducedMotion = useReducedMotionPreference();
+
+  useEffect(() => {
+    bubbles.forEach((bubble) => {
+      if (started.current.has(bubble.id)) return;
+      const element = bubbleRefs.current.get(bubble.id);
+      if (!element) return;
+      started.current.add(bubble.id);
+      const animation = animate(
+        element,
+        [
+          { transform: "translate(-50%, -50%) scale(.18)", opacity: 0, filter: "blur(4px)" },
+          { transform: "translate(-50%, -70%) scale(1)", opacity: 1, filter: "blur(0px)", offset: 0.36 },
+          { transform: "translate(-50%, -145%) scale(1.45)", opacity: 0, filter: "blur(1px)" },
+        ],
+        {
+          duration: reducedMotion ? 1 : 780,
+          delay: reducedMotion ? 0 : bubble.delay,
+          easing: "cubic-bezier(.2,.8,.2,1)",
+          fill: "forwards",
+          reducedMotion: false,
+        },
+      );
+      animations.current.set(bubble.id, animation);
+      animation.finished.then(() => {
+        setBubbles((current) => current.filter((item) => item.id !== bubble.id));
+        bubbleRefs.current.delete(bubble.id);
+        animations.current.delete(bubble.id);
+        started.current.delete(bubble.id);
+      }).catch(() => undefined);
+    });
+  }, [bubbles, reducedMotion]);
+
+  useEffect(() => () => {
+    animations.current.forEach((animation) => animation.cancel());
+    animations.current.clear();
+    started.current.clear();
+  }, []);
+
+  function popBurst() {
+    const spread = [
+      [-23, 2], [-12, -9], [0, -15], [12, -9], [23, 2],
+    ];
+    const delayFor = stagger(54);
+    const burstId = `${Date.now()}-${Math.random()}`;
+    setBubbles((current) => current.concat(spread.map(([x, y], index) => ({
+      id: `${burstId}-${index}`,
+      left: 50 + x,
+      top: 58 + y,
+      delay: reducedMotion ? 0 : delayFor(index),
+      hue: 185 + index * 25,
+    }))));
+  }
+
+  return (
+    <section style={panelStyle} aria-labelledby="bubble-lab-title">
+      <h3 id="bubble-lab-title" style={{ marginTop: 0 }}>01 · Bubble-pop laboratory</h3>
+      <p style={{ color: "#b8c7dc", lineHeight: 1.65 }}>
+        Tap or click the button to create a staggered burst. Each bubble is a real DOM element animated with Kovari's <code>animate()</code> helper and the package's <code>stagger()</code> timing utility.
+      </p>
+      <div
+        ref={stageRef}
+        style={{ position: "relative", height: 205, overflow: "hidden", borderRadius: 14, border: "1px solid #314966", background: "radial-gradient(ellipse at 50% 120%, #173d69 0%, #0b1424 65%)" }}
+      >
+        <div style={{ position: "absolute", inset: "auto 0 0", height: 1, background: "#3d6689" }} />
+        {bubbles.map((bubble) => (
+          <span
+            key={bubble.id}
+            ref={(element) => {
+              if (element) bubbleRefs.current.set(bubble.id, element);
+              else bubbleRefs.current.delete(bubble.id);
+            }}
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              left: `${bubble.left}%`,
+              top: `${bubble.top}%`,
+              width: 30,
+              height: 30,
+              borderRadius: "50%",
+              opacity: 0,
+              transform: "translate(-50%, -50%) scale(.18)",
+              background: `radial-gradient(circle at 30% 25%, #ffffff 0%, hsl(${bubble.hue} 90% 82%) 15%, hsl(${bubble.hue} 83% 51% / .82) 48%, hsl(${bubble.hue} 82% 35% / .35) 72%, transparent 74%)`,
+              border: `1px solid hsl(${bubble.hue} 90% 86% / .75)`,
+              boxShadow: `0 0 22px hsl(${bubble.hue} 90% 58% / .35)`,
+              pointerEvents: "none",
+            }}
+          />
+        ))}
+        <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", pointerEvents: "none", color: "#9ab4d1", fontSize: 13 }}>
+          {bubbles.length === 0 ? "Bubbles appear here" : `${bubbles.length} bubbles animating`}
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginTop: 14 }}>
+        <button type="button" style={buttonStyle} onClick={popBurst}>Pop a bubble burst</button>
+        <span style={{ color: "#9eb1c8", fontSize: 13 }}>
+          {reducedMotion ? "Reduced-motion preference detected: animations are shortened." : "Five bubbles · staggered timing · opacity + transform."}
+        </span>
+      </div>
+    </section>
+  );
+}
+
+export function ScrollLab() {
+  const viewportRef = useRef(null);
+  const [progress, setProgress] = useState(0);
+  const reducedMotion = useReducedMotionPreference();
+  const sections = [
+    { title: "01 · Observe", body: "The scroll() utility exposes progress as a MotionValue from 0 to 1." },
+    { title: "02 · Subscribe", body: "Subscribe to progress changes and update a progress bar or another DOM/UI value." },
+    { title: "03 · Animate", body: "Use the latest progress to move and fade the marker while this panel scrolls." },
+    { title: "04 · Clean up", body: "Unsubscribe from the MotionValue and call stop() when the component unmounts." },
+    { title: "05 · Keep it usable", body: "The scroll region stays touch-scrollable, and the controls can jump to either end." },
+    { title: "06 · Browser scrolling", body: "Smooth movement of the viewport is provided by Element.scrollTo(); Kovari tracks the scroll progress." },
+  ];
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return undefined;
+    const tracker = scroll(viewport);
+    const syncProgress = () => setProgress(Math.max(0, Math.min(1, tracker.progress.get())));
+    const unsubscribe = tracker.progress.subscribe(syncProgress);
+    syncProgress();
+    return () => {
+      unsubscribe();
+      tracker.stop();
+    };
+  }, []);
+
+  function jumpTo(end) {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    viewport.scrollTo({ top: end ? viewport.scrollHeight : 0, behavior: reducedMotion ? "auto" : "smooth" });
+  }
+
+  return (
+    <section style={panelStyle} aria-labelledby="scroll-lab-title">
+      <h3 id="scroll-lab-title" style={{ marginTop: 0 }}>02 · Scroll-linked motion</h3>
+      <p style={{ color: "#b8c7dc", lineHeight: 1.65 }}>
+        Scroll inside the panel—not the entire page. The demo subscribes to <code>scroll(viewport).progress</code> and uses the real progress value to move an orb and transform each content card.
+      </p>
+      <div style={{ height: 9, borderRadius: 99, background: "#20314a", overflow: "hidden" }} aria-label="Scroll progress track">
+        <div style={{ height: "100%", width: `${progress * 100}%`, borderRadius: 99, background: "linear-gradient(90deg,#3b82f6,#5eead4)", transition: reducedMotion ? "none" : "width 80ms linear" }} />
+      </div>
+      <div style={{ position: "relative", height: 28, margin: "8px 0 12px", borderBottom: "1px solid #314966" }} aria-hidden="true">
+        <span style={{ position: "absolute", top: 3, left: `${progress * 94}%`, width: 20, height: 20, borderRadius: "50%", background: "radial-gradient(circle at 30% 28%,white,#5eead4 35%,#2563eb 75%)", boxShadow: "0 0 16px #38bdf8", transform: "translateX(-50%)" }} />
+      </div>
+      <div
+        ref={viewportRef}
+        tabIndex={0}
+        aria-label="Scrollable motion demo; use a touch gesture, mouse wheel or arrow keys"
+        style={{ height: 240, overflowY: "auto", overscrollBehavior: "contain", touchAction: "pan-y", border: "1px solid #314966", borderRadius: 13, padding: 12, background: "#0a1220", scrollBehavior: reducedMotion ? "auto" : "smooth" }}
+      >
+        <div style={{ minHeight: 700, display: "flex", flexDirection: "column", gap: 12, paddingBottom: 10 }}>
+          {sections.map((section, index) => (
+            <article key={section.title} style={{ padding: 14, borderRadius: 11, border: "1px solid #2b405b", background: "#101e31", opacity: 0.58 + progress * 0.42, transform: `translateX(${progress * (index % 2 === 0 ? 18 : -18)}px) scale(${0.98 + progress * 0.02})`, transition: reducedMotion ? "none" : "opacity 100ms linear, transform 100ms linear" }}>
+              <strong>{section.title}</strong>
+              <p style={{ marginBottom: 0, color: "#b8c7dc", lineHeight: 1.6 }}>{section.body}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginTop: 14 }}>
+        <button type="button" style={buttonStyle} onClick={() => jumpTo(false)}>Scroll to top</button>
+        <button type="button" style={buttonStyle} onClick={() => jumpTo(true)}>Scroll to bottom</button>
+        <output style={{ color: "#a8c2df", fontVariantNumeric: "tabular-nums", fontSize: 13 }}>Progress: {(progress * 100).toFixed(0)}%</output>
+      </div>
+    </section>
+  );
+}
+
+export function DragLab() {
+  const stageRef = useRef(null);
+  const objectRef = useRef(null);
+  const dragStart = useRef(null);
+  const xValue = useRef(null);
+  const [position, setPosition] = useState({ x: 28, y: 34 });
+  const [dragging, setDragging] = useState(false);
+  const reducedMotion = useReducedMotionPreference();
+  if (xValue.current === null) xValue.current = motionValue(position.x);
+
+  useEffect(() => {
+    const unsubscribe = xValue.current.subscribe(() => {
+      const x = xValue.current.get();
+      setPosition((current) => current.x === x ? current : { ...current, x });
+    });
+    return unsubscribe;
+  }, []);
+
+  function startDrag(event) {
+    const object = objectRef.current;
+    if (!object) return;
+    object.setPointerCapture(event.pointerId);
+    dragStart.current = { pointerX: event.clientX, pointerY: event.clientY, x: position.x, y: position.y };
+    setDragging(true);
+  }
+
+  function moveDrag(event) {
+    if (!dragStart.current || !stageRef.current) return;
+    const bounds = stageRef.current.getBoundingClientRect();
+    const nextX = Math.max(0, Math.min(bounds.width - 64, dragStart.current.x + event.clientX - dragStart.current.pointerX));
+    const nextY = Math.max(0, Math.min(bounds.height - 64, dragStart.current.y + event.clientY - dragStart.current.pointerY));
+    xValue.current.set(nextX);
+    setPosition((current) => current.y === nextY ? current : { ...current, y: nextY });
+  }
+
+  function endDrag() {
+    dragStart.current = null;
+    setDragging(false);
+  }
+
+  function springHome() {
+    const element = objectRef.current;
+    if (!element) return;
+    const curve = spring({ stiffness: 280, damping: 17, mass: 1 });
+    const samples = curve.sample(36);
+    const keyframes = samples.map((value, index) => ({
+      offset: index / Math.max(1, samples.length - 1),
+      transform: `translate3d(${position.x + (28 - position.x) * value}px, ${position.y + (34 - position.y) * value}px, 0) rotate(${(1 - value) * -9}deg) scale(${1 + (1 - value) * 0.08})`,
+    }));
+    animate(element, keyframes, { duration: reducedMotion ? 1 : curve.duration, easing: "linear", fill: "both", reducedMotion: false });
+    xValue.current.set(28);
+    setPosition({ x: 28, y: 34 });
+  }
+
+  return (
+    <section style={panelStyle} aria-labelledby="drag-lab-title">
+      <h3 id="drag-lab-title" style={{ marginTop: 0 }}>03 · Touch, drag and spring</h3>
+      <p style={{ color: "#b8c7dc", lineHeight: 1.65 }}>
+        Drag the object with a mouse, finger or stylus. Its horizontal coordinate is stored in a package <code>motionValue</code>; press the spring button to calculate spring samples and animate the object back to its resting position.
+      </p>
+      <div ref={stageRef} style={{ position: "relative", height: 190, border: "1px solid #314966", borderRadius: 14, background: "linear-gradient(135deg,#0a1423,#132945)", overflow: "hidden", touchAction: "pan-y" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 0.24, backgroundImage: "radial-gradient(#90b4dc 1px,transparent 1px)", backgroundSize: "18px 18px", pointerEvents: "none" }} />
+        <button
+          ref={objectRef}
+          type="button"
+          aria-label="Draggable motion object. Drag to move it."
+          onPointerDown={startDrag}
+          onPointerMove={moveDrag}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          onLostPointerCapture={endDrag}
+          style={{ position: "absolute", top: 0, left: 0, width: 64, height: 64, borderRadius: 18, border: "1px solid #9dd8ff", color: "#03101e", fontSize: 22, fontWeight: 800, background: "linear-gradient(145deg,#effaff,#70d7ff 46%,#4f8df7)", boxShadow: dragging ? "0 10px 34px #38bdf855" : "0 5px 18px #38bdf844", transform: `translate3d(${position.x}px, ${position.y}px, 0)`, cursor: dragging ? "grabbing" : "grab", touchAction: "none", userSelect: "none", padding: 0 }}
+        >
+          ↗
+        </button>
+        <div style={{ position: "absolute", right: 12, bottom: 10, color: "#8fa9c7", fontSize: 12, pointerEvents: "none" }}>Drag the blue object</div>
+      </div>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginTop: 14 }}>
+        <button type="button" style={buttonStyle} onClick={springHome}>Spring back to start</button>
+        <output style={{ color: "#a8c2df", fontVariantNumeric: "tabular-nums", fontSize: 13 }}>x: {Math.round(position.x)} px · y: {Math.round(position.y)} px</output>
+      </div>
+    </section>
+  );
+}
+
+export function EasingLab() {
+  const cardRef = useRef(null);
+  const reducedMotion = useReducedMotionPreference();
+  function play() {
+    if (!cardRef.current) return;
+    const curve = spring({ stiffness: 220, damping: 16, mass: 1 });
+    const values = curve.sample(42);
+    const keyframes = values.map((value, index) => ({
+      offset: index / Math.max(1, values.length - 1),
+      transform: `translateY(${(1 - value) * -42}px) rotate(${(1 - value) * 2.5}deg)`,
+      opacity: Math.min(1, 0.55 + value * 0.45),
+    }));
+    animate(cardRef.current, keyframes, { duration: reducedMotion ? 1 : curve.duration, easing: "linear", fill: "both", reducedMotion: false });
+  }
+  return (
+    <section style={panelStyle} aria-labelledby="spring-lab-title">
+      <h3 id="spring-lab-title" style={{ marginTop: 0 }}>04 · Spring sampling</h3>
+      <p style={{ color: "#b8c7dc", lineHeight: 1.65 }}>
+        Kovari's <code>spring()</code> returns a calculated duration and a <code>sample()</code> method. This demo turns those samples into Web Animations API keyframes so you can inspect the spring motion.
+      </p>
+      <div style={{ minHeight: 108, display: "grid", placeItems: "center", overflow: "hidden", borderRadius: 13, background: "#0a1220", border: "1px solid #314966" }}>
+        <div ref={cardRef} style={{ padding: "15px 22px", border: "1px solid #60a5fa", borderRadius: 12, background: "linear-gradient(135deg,#1d4ed8,#0e7490)", color: "white", fontWeight: 750, boxShadow: "0 10px 26px #2563eb30" }}>Spring sample</div>
+      </div>
+      <button type="button" style={{ ...buttonStyle, marginTop: 14 }} onClick={play}>Replay spring</button>
+    </section>
+  );
+}
+
+# Kovari React Motion — Interactive Playground
+
+This MDX page is designed to run inside an **MDX-enabled React documentation site**. The controls below are live React components; they use APIs found in the published `@kovari/react-motion` package rather than illustrative pseudocode.
+
+> **GitHub note:** GitHub's ordinary README renderer displays `.mdx` source as documentation; it does not execute React. To make these controls interactive for visitors, render this file through your site's MDX integration (for example, an existing Next.js MDX or Docusaurus setup).
+
+## Before you start
+
+Install the package and React in your documentation application:
+
+```bash
+npm install @kovari/react-motion react react-dom
+```
+
+The examples use the package's `animate`, `stagger`, `spring`, `motionValue` and `scroll` exports. The playground is intentionally self-contained: styles are local inline styles, and all animations are started and cleaned up by the component that owns them.
+
+<BubbleLab />
+
+<ScrollLab />
+
+<DragLab />
+
+<EasingLab />
+
+## How the interactive examples work
+
+### Bubble burst
+
+1. The **Pop a bubble burst** button creates five bubble elements with staggered delay values from `stagger(54)`.
+2. A React effect finds each newly mounted element and calls `animate(element, keyframes, options)`.
+3. The keyframes control scale, vertical position, opacity and blur. `fill: "forwards"` holds the last visual frame until React removes the element.
+4. When the animation finishes, the element is removed from state and its animation reference is released.
+5. The reduced-motion preference shortens the effect to a near-instant change.
+
+### Scroll-linked cards
+
+The scroll demo calls `scroll(viewport)`, subscribes to `tracker.progress`, and displays the value as a percentage. The marker position, card opacity and card transforms update from that progress. The top/bottom buttons use the browser's `Element.scrollTo()` API; Kovari supplies the observable scroll progress, while the browser performs the smooth scroll.
+
+The subscription is removed and `tracker.stop()` is called when the component unmounts. Keep this cleanup pattern in your own apps so abandoned views do not retain scroll listeners.
+
+### Draggable object
+
+The blue tile captures the active pointer so the same interaction works with mouse, touch and stylus. Pointer deltas are constrained to the stage bounds. The horizontal coordinate is stored in `motionValue()`, whose subscription updates React state. **Spring back to start** samples `spring()` and converts the samples into keyframes.
+
+### Spring sample
+
+The spring example uses `spring({ stiffness, damping, mass })` and its returned `sample(count)` values. Those values are mapped to transform and opacity frames and passed to `animate()`. This demonstrates the package's current spring-sampling API; it does not assume a separate spring-powered DOM animation method.
+
+## Reduced motion and keyboard/touch access
+
+- The page respects `prefers-reduced-motion` by shortening optional effects and turning smooth scroll into an immediate jump.
+- Buttons are native buttons, so they work with keyboards and assistive technology.
+- The scrollable panel is focusable and labelled; it can be navigated by scrolling, touch or keyboard.
+- The draggable object uses pointer events, including pointer cancellation. Dragging is an optional visual demo, not the only way to access its information.
+- Always test your own application with keyboard-only navigation and reduced-motion settings.
+
+## Embedding this playground in your docs
+
+Place `MotionPlayground.mdx` somewhere your MDX framework discovers pages, then use the normal route or import mechanism for that framework. No separate CSS file is required. Ensure that your MDX compiler supports component declarations and JSX, and that the package is installed in the same application that compiles the page.
+
+For production deployments, build and preview the docs site before publishing. The package's React adapter is optional at package-install time, but an interactive React MDX page obviously requires React at runtime.

@@ -1,23 +1,26 @@
 <div align="center">
-  <img src="./assets/icon.png" width="150" alt="Kovari React Motion icon" />
+  <img src="https://raw.githubusercontent.com/LoonCodeHunter/react-motion/main/assets/icon.png" width="150" alt="Kovari React Motion icon" />
 
   <h1>@kovari/react-motion</h1>
   <p><strong>ESM-first animation primitives for React, TypeScript, JavaScript and Kovari Code IDE.</strong></p>
 
   <p>
-    <a href="https://www.npmjs.com/package/@kovari/react-motion"><img src="https://img.shields.io/npm/v/@kovari/react-motion?style=for-the-badge&label=version&color=6757ff" alt="npm version" /></a>
-    <a href="https://www.npmjs.com/package/@kovari/react-motion" title="View @kovari/react-motion on npm"><img src="https://img.shields.io/npm/dm/%40kovari%2Freact-motion.svg?style=for-the-badge&amp;logo=npm&amp;logoColor=white&amp;label=monthly%20downloads&amp;color=cb3837" alt="Monthly npm downloads for @kovari/react-motion" /></a>
-    <a href="https://github.com/LoonCodeHunter/react-motion/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/LoonCodeHunter/react-motion/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI status" /></a>
-    <a href="https://github.com/LoonCodeHunter/react-motion/actions/workflows/motion-score.yml"><img src="https://img.shields.io/github/actions/workflow/status/LoonCodeHunter/react-motion/motion-score.yml?branch=main&style=for-the-badge&label=Motion%20Score%20CI" alt="Motion Score workflow status" /></a>
-    <a href="https://github.com/LoonCodeHunter/react-motion/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-238636?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="MIT licence" /></a>
-    <img src="https://img.shields.io/badge/node-%3E%3D18-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js 18 or newer" />
-    <a href="https://github.com/LoonCodeHunter/react-motion/actions/workflows/motion-score.yml" title="View the Motion Score workflow"><img src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2FLoonCodeHunter%2Freact-motion%2Fmain%2Fmotion-score.json&amp;style=for-the-badge" alt="Kovari React Motion benchmark score" /></a>
+    <a href="https://www.npmjs.com/package/@kovari/react-motion"><img src="https://img.shields.io/badge/version-v0.1.2-6757ff?style=flat" alt="Version v0.1.2" /></a>
+    <a href="https://www.npmjs.com/package/@kovari/react-motion"><img src="https://img.shields.io/npm/dt/%40kovari%2Freact-motion?style=flat&amp;logo=npm&amp;logoColor=white&amp;label=downloads" alt="Downloads" /></a>
+    <a href="https://github.com/LoonCodeHunter/react-motion/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/LoonCodeHunter/react-motion/ci.yml?branch=main&amp;style=flat&amp;label=CI" alt="CI status" /></a>
+    <a href="https://github.com/LoonCodeHunter/react-motion/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-238636?style=flat&amp;logo=opensourceinitiative&amp;logoColor=white" alt="MIT licence" /></a>
+    <img src="https://img.shields.io/badge/Node.js-%3E%3D20.19-339933?style=flat&amp;logo=nodedotjs&amp;logoColor=white" alt="Node.js 20.19 or newer" />
+    <a href="https://github.com/LoonCodeHunter/react-motion/actions/workflows/motion-score.yml" title="Motion Score workflow status"><img src="https://img.shields.io/github/actions/workflow/status/LoonCodeHunter/react-motion/motion-score.yml?branch=main&amp;style=flat&amp;label=Motion%20Score%20CI" alt="Motion Score CI status" /></a>
+    <a href="https://github.com/LoonCodeHunter/react-motion/blob/main/docs/MOTION-SCORE.md" title="See the Motion Score methodology and history"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FLoonCodeHunter%2Freact-motion%2Fmain%2Fmotion-score.json&amp;style=flat" alt="Kovari React Motion Motion Score out of 100" /></a>
   </p>
 
-  <img src="./assets/motion-score.png" alt="Kovari React Motion product overview" width="100%" />
+  <img src="https://raw.githubusercontent.com/LoonCodeHunter/react-motion/main/assets/motion-score.png" alt="Kovari React Motion product overview" width="100%" />
 
   <p><a href="https://www.npmjs.com/package/@kovari/react-motion">npm package</a> · <a href="https://github.com/LoonCodeHunter/react-motion">GitHub repository</a> · <a href="https://github.com/LoonCodeHunter/react-motion/issues">Issues and support</a></p>
 </div>
+
+
+> **Version badge policy:** the `version-v0.1.2` badge above records the version in this repository (`0.1.2`). It intentionally does not mirror the npm `latest` tag, which may continue to point at the previous published release until this version is published.
 
 ---
 
@@ -64,7 +67,7 @@ It is designed for interfaces that need expressive motion without adopting a lar
 - Make the low-level primitives composable in JavaScript and TypeScript applications.
 - Keep accessibility and measurement visible rather than treating animation as decoration only.
 
-> **Version note:** this README is prepared for the planned `0.1.1` release. The API examples were cross-checked against the `@kovari/react-motion@0.1.0` package archive supplied for this task. The version badge above reads the published npm version automatically. Publish and test the new version before describing `0.1.1` as available on npm.
+> **Version note:** this source tree declares `@kovari/react-motion@0.1.2`. The badge is intentionally pinned to this repository version and does not read npm's `latest` tag. A source version is not a claim that this release has been published; run the consumer tests and inspect the generated tarball before announcing a release.
 
 ## Why motion?
 
@@ -91,7 +94,7 @@ Browser-native animations can run transform and opacity keyframes efficiently, w
 ## Compatibility
 
 - **Module format:** ESM (`"type": "module"`).
-- **Node.js engine declared by the package:** Node.js 18 or newer.
+- **Node.js engine declared by the package:** Node.js 20.19 or newer.
 - **React peer dependency:** React `^18.2.0` or `^19.0.0` and matching React DOM versions. React peer dependencies are optional at install time because the non-React utilities can be used without the React adapter.
 - **DOM requirements:** `animate()`, `scroll()`, pointer helpers and layout helpers require browser DOM objects. Do not execute DOM-dependent examples during server-side rendering.
 - **TypeScript:** declaration files are published in `dist/types/`.
@@ -356,7 +359,7 @@ export function popBubbles(bubbles) {
 }
 ```
 
-A complete touchable demo—including bubble creation and cleanup, staggered bursts, scroll-linked objects, pointer dragging and spring sampling—is in [`MotionPlayground.mdx`](./MotionPlayground.mdx). Render that file through an MDX-enabled React documentation site to make the controls interactive. GitHub's normal README display does not execute MDX.
+A complete touchable demo—including bubble creation and cleanup, staggered bursts, scroll-linked objects, pointer dragging and spring sampling—is in [`MotionPlayground.mdx`](./docs/MotionPlayground.mdx). Render that file through an MDX-enabled React documentation site to make the controls interactive. GitHub's normal README display does not execute MDX.
 
 ## Scroll progress and smooth scrolling
 
@@ -548,7 +551,7 @@ x.set(24);
 // unsubscribe();
 ```
 
-For production drag interactions, prefer pointer capture, coordinate bounds, cancellation handling and explicit cleanup. [`MotionPlayground.mdx`](./MotionPlayground.mdx) demonstrates a touchable draggable tile with those pieces.
+For production drag interactions, prefer pointer capture, coordinate bounds, cancellation handling and explicit cleanup. [`MotionPlayground.mdx`](./docs/MotionPlayground.mdx) demonstrates a touchable draggable tile with those pieces.
 
 ## Timelines
 
@@ -666,7 +669,7 @@ The debug buffer is a development aid, not a production telemetry backend. Do no
 
 ## Interactive playground
 
-The repository includes [`MotionPlayground.mdx`](./MotionPlayground.mdx), a live React MDX page with four hands-on labs:
+The repository includes [`MotionPlayground.mdx`](./docs/MotionPlayground.mdx), a live React MDX page with four hands-on labs:
 
 1. **Bubble-pop laboratory** — trigger five bubbles with staggered timing and fading/scaling keyframes.
 2. **Scroll-linked motion** — scroll a nested panel and watch its progress indicator and cards change.
@@ -685,7 +688,7 @@ npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite. The viewer compiles `MotionPlayground.mdx` through `@mdx-js/rollup`, resolves the component imports, mounts React, and runs the live bubble, scroll, drag, and spring labs. The demo uses the exact `@kovari/react-motion@0.1.0` tarball supplied for this review as a local file dependency, so it does not silently switch to a different library build. npm must still be reachable to install the viewer's React/Vite/MDX development dependencies.
+Open the local URL printed by Vite. The viewer must compile `docs/MotionPlayground.mdx` through an MDX integration, resolve its React component imports, mount React, and run the live bubble, scroll, drag and spring labs. For reproducible documentation, point the viewer at this source package build or an exact published package version rather than depending on an unpinned `latest` version. npm must be reachable to install the viewer's React/Vite/MDX development dependencies.
 
 If you are integrating the file into an existing docs site, configure that site to compile MDX and render its default export as a React component. Do not paste the `.mdx` file into a text-only preview and expect code blocks or component declarations to execute. For Next.js App Router, place hook-using demos in a Client Component and import that component into the MDX page.
 
@@ -696,7 +699,7 @@ If you are integrating the file into an existing docs site, configure that site 
 3. **Touch-and-drag** — a pointer-captured tile can be moved with a mouse, touch screen, or stylus. A `motionValue()` stores its horizontal position; `spring().sample()` generates the return keyframes.
 4. **Spring lab** — replay a spring sample and inspect a curve generated by the published spring API.
 
-The playground calls only exports present in the `@kovari/react-motion@0.1.0` archive: `animate`, `stagger`, `spring`, `motionValue`, and `scroll`. It does not depend on Motion+, an external animation CDN, or an undocumented package API.
+The playground calls only exports present in the `@kovari/react-motion@0.1.1` archive: `animate`, `stagger`, `spring`, `motionValue`, and `scroll`. It does not depend on Motion+, an external animation CDN, or an undocumented package API.
 
 ## API reference
 
@@ -741,49 +744,71 @@ The stylesheet provides utility classes; it does not style every component autom
 
 ## Performance and Motion Score
 
-The project defines a **custom Motion Score** to track performance trends for the currently published npm package. It is not a third-party standard, an accessibility score or a guarantee that every animation looks smooth on every device.
+Kovari React Motion includes a **project-specific Motion Score from 0 to 100**. A score of `0` is the lowest band; `100` is the highest. The number is measured by a browser benchmark against the **latest published npm release**, and the badge is updated from the JSON artifact committed by the workflow. It is a repeatable trend signal—not a universal performance rating, accessibility certification, or guarantee of application smoothness.
 
-The workflow file is [`motion-score.yml`](./motion-score.yml). Copy it into the repository at `.github/workflows/motion-score.yml` so GitHub Actions detects it. The workflow installs the **latest published** `@kovari/react-motion` in an isolated temporary benchmark app, opens a headless Chromium browser, measures the package's spring, MotionValue and DOM-animation primitives, then writes `motion-score.json` and a detailed Actions run summary.
+- [Motion Score methodology, thresholds and interpretation](./docs/MOTION-SCORE.md)
+- [Run history and CI summaries](https://github.com/LoonCodeHunter/react-motion/actions/workflows/motion-score.yml)
+- [Workflow source](./.github/workflows/motion-score.yml)
+- [Machine-readable badge data](./motion-score.json)
 
-### What it measures
+### Score and badge colours
 
-| Component | Weight | Measurement |
+| Score | Badge colour | Interpretation |
+|---:|---|---|
+| 0–49 | Red | Needs attention; inspect frame pacing and primitive throughput |
+| 50–69 | Yellow | Developing; review the component score breakdown |
+| 70–89 | Green | Good within comparable benchmark runs |
+| 90–100 | Yellow-green | Excellent result on the measured runner |
+
+The scoring code and thresholds are shared by the benchmark and regression tests in `scripts/motion-score/core.mjs`. The unit suite checks the score boundaries, zero/100 behavior, input validation and monotonic improvements. Do not change a threshold without updating that module, its tests and this table together.
+
+### What the score measures
+
+| Component | Weight | Inputs |
 |---|---:|---|
-| Frame cadence | 40% | `requestAnimationFrame` samples during a small animation batch, including frames slower than 24 ms |
-| Spring sampling | 20% | Samples per second produced by repeated `spring().sample()` calls |
-| MotionValue update throughput | 20% | Numeric `motionValue.set()` updates per second with a subscriber attached |
-| Animation timing | 20% | How close the median completion time is to a requested 96 ms browser animation |
+| Frame cadence | 40% | `requestAnimationFrame` cadence during 12 concurrent DOM animations and frames taking longer than 24 ms |
+| Spring sampling | 20% | Number of spring sample points generated per second |
+| MotionValue updates | 20% | Numeric `motionValue.set()` updates per second while a subscriber is attached; notifications are counted for correctness |
+| Animation timing | 20% | How close the median observed completion time is to the benchmark's 96 ms animation target |
 
-Each component is normalised to a documented ceiling, combined using the weights above and rounded to a score between `0` and `100`. The workflow records component scores and raw metrics so you can see *why* a score changed.
+Each component is normalised against a documented target, clamped to `0–100`, then combined by the stated weights and rounded to an integer. The run writes `motion-score.json`, prints the same metrics in the GitHub Actions job summary and uploads the output as a workflow artifact. It also records the npm package version that was tested, so the result is not mistaken for the repository's unpublished source version.
 
-### Enable the score badge
+### Run and publish the score badge
 
-1. Add `motion-score.yml` at `.github/workflows/motion-score.yml`.
-2. In repository **Settings → Actions → General**, allow workflows to have read/write access to repository contents (or adapt the workflow for your security policy).
-3. Run the **Motion Score** workflow manually or push to `main`.
-4. After the first successful `main` run, the workflow commits the generated `motion-score.json` file. The Shields.io endpoint badge near the top of this README then reads the tracked JSON.
-5. Review the workflow summary and uploaded `kovari-react-motion-score` artifact for raw measurements.
+1. Keep `scripts/motion-score/` and `.github/workflows/motion-score.yml` in the default branch.
+2. Make sure the repository's Actions policy permits the `update-score` job to write `motion-score.json`. The benchmark job itself receives only `contents: read`; the write permission is restricted to the separate score-update job.
+3. Run **Actions → Motion Score → Run workflow**, or push to `main`. Pull requests can benchmark and upload results but never commit the score JSON.
+4. On a successful run against `main`, the workflow validates and commits the generated `motion-score.json` file. The Shields endpoint badge reads this file from `raw.githubusercontent.com` and links to the methodology documentation.
+5. Inspect the workflow summary and the `kovari-react-motion-score` artifact before making performance claims.
 
-The workflow runs on pushes to `main`, pull requests targeting `main`, manual dispatch and a weekly schedule. Pull requests report benchmark results without attempting to commit the score file. Generated score-only commits are ignored as a workflow trigger to avoid a commit loop.
+The workflow runs on pushes to `main`, pull requests targeting `main`, manual dispatch and a weekly schedule. Commits that change only `motion-score.json` are ignored by the benchmark push trigger to avoid a loop. If repository branch protection prohibits bot pushes, the benchmark and artifact can still succeed but the badge JSON update needs a permitted update strategy (for example, allowing the score bot or using a generated pull request).
 
-### Interpret scores responsibly
+### Read results responsibly
 
-- Compare results from the same hosted runner/browser configuration, not against unrelated devices.
-- A score change can reflect runner load, Chromium updates or host changes as well as a library change.
-- The benchmark covers selected primitives, not the full perceived quality of real UI animations.
-- It does not measure layout shift, accessibility, package size, battery consumption, React render costs or performance across mobile devices.
-- The first successful run creates the score JSON; until then the dynamic badge may have no score to show.
-- Always profile actual applications and add workload-specific benchmarks before making performance claims.
+- Compare scores produced by the same runner/browser configuration; hosted-runner load and Chromium updates can move results independently of code changes.
+- The benchmark intentionally runs on the latest published version. After publishing a release, run it again to measure that release.
+- It does not measure package download size, React render cost, layout shift, energy use, mobile hardware, accessibility, visual quality or every browser.
+- A higher synthetic score does not replace profiling real Kovari Code IDE screens or checking reduced-motion, keyboard and touch accessibility.
+- Until a successful main-branch benchmark exists, `motion-score.json` remains `pending` and the badge is neutral rather than showing an invented score.
 
-### Local checks versus the Motion Score
+### Local validation commands
 
-The package's own development scripts validate the library from its source repository. The Motion Score workflow installs the latest **published npm release** and measures it in a browser. These answer different questions: one checks the repository's build/tests, while the other tracks a subset of end-user runtime performance.
+```bash
+npm ci
+npm run typecheck
+npm test
+npm run pack:verify
+npm run pack:dry
+npm run release:check
+```
+
+`npm run release:check` covers source typechecking, unit tests, build/package validation and npm dry-runs. The separate Motion Score workflow measures a **published** package in a browser; the two workflows answer different questions.
 
 ## Accessibility
 
 Motion should support understanding and control, not prevent it.
 
-- **Respect reduced motion.** Read `prefers-reduced-motion` and choose shorter or no movement for non-essential animation. The `animate()` helper has a `reducedMotion` option; if you explicitly provide a duration, select that duration intentionally when reduced motion is enabled.
+- **Respect reduced motion.** Read `prefers-reduced-motion` and reduce non-essential movement. Unless you explicitly set `reducedMotion: false`, the `animate()` helper forces duration to `0` when the browser reports a reduced-motion preference—even if the caller supplied a duration. Prefer keeping that safe default for user-facing animations.
 - **Prefer useful state transitions.** Do not make information available only while an element is moving.
 - **Keep interactions operable.** Buttons should remain real buttons; scroll regions should be focusable where needed; drag-only interactions should have an alternative if moving the object is essential.
 - **Avoid flashing.** Do not add rapidly flashing effects or strong repeated scaling that can be uncomfortable.
@@ -826,7 +851,7 @@ The Motion Score measures a narrow set of timing/throughput signals; it does not
 
 ## Badge notes
 
-The npm downloads badge in this README is scoped to **`@kovari/react-motion`**, not `@kovari/code` or another package. It uses Shields.io's scoped npm package path, a direct `.svg` image endpoint, and an explicit “monthly downloads” label. Its displayed value comes from npm/Shields and is not hard-coded. Newly published packages may show zero or unavailable counts until npm download statistics are available; that is different from an invalid image URL. The badge links to the exact npm package page.
+The npm downloads badge in this README is scoped to **`@kovari/react-motion`**, not `@kovari/code` or another package. It uses Shields.io's scoped npm package path, a direct `.svg` image endpoint, and an explicit “downloads” label. Its displayed value comes from npm/Shields and is not hard-coded. Newly published packages may show zero or unavailable counts until npm download statistics are available; that is different from an invalid image URL. The badge links to the exact npm package page.
 
 ## Troubleshooting
 
@@ -931,19 +956,31 @@ Repository-level documentation/support files introduced with this README:
 react-motion/
 ├── .github/
 │   └── workflows/
-│       └── motion-score.yml   # add the provided workflow here
-├── MotionPlayground.mdx       # interactive React MDX playground
+│       └── motion-score.yml   # tracked GitHub Actions benchmark
+├── docs/
+│   └── MotionPlayground.mdx   # interactive React MDX playground
 ├── README.md
 └── motion-score.json          # generated by successful Motion Score workflow
 ```
 
-The workflow source is provided as [`motion-score.yml`](./motion-score.yml) in this documentation bundle. Copy it into `.github/workflows/motion-score.yml` for GitHub Actions to discover it. The score JSON is generated by the workflow; it is not a hand-entered performance claim.
+The workflow source is [`.github/workflows/motion-score.yml`](./.github/workflows/motion-score.yml). GitHub Actions discovers it at that path. The score JSON is generated by the workflow; it is not a hand-entered performance claim.
 
 ## Relationship to Motion and Motion+
 
 [Motion](https://motion.dev/) is a separate animation project. [Motion+](https://motion.dev/plus) is a separate paid professional toolkit. `@kovari/react-motion` does not redistribute Motion+ source, premium components, or proprietary APIs. The examples in this repository are written around Kovari's own package surface and standard browser APIs.
 
 Do not use a Motion.dev performance badge as if it measures this npm package: that badge reports on a different site. The Motion Score badge linked above uses measurements collected by the workflow in this repository.
+
+## Production integration guides
+
+The root README is the API and quick-start reference. The maintained guides below focus on lifecycle management and release operations:
+
+- [React and browser integration](./docs/INTEGRATION-GUIDE.md) — effects, cleanup, scroll subscriptions, spring sampling and accessibility.
+- [Motion Score methodology](./docs/MOTION-SCORE.md) — how the browser benchmark is scored, what the badge JSON requires and how to troubleshoot the workflow.
+
+### Use in Kovari Code IDE
+
+Use React Motion for UI affordances such as project-card hover states, progress indicators, empty-state entrances and the small transitions around generation status. Keep project generation, policy enforcement and filesystem operations in their owning packages. Animation is presentation—not a substitute for loading/error state, keyboard access or reduced-motion support.
 
 ## Licence
 
@@ -952,3 +989,13 @@ Do not use a Motion.dev performance badge as if it measures this npm package: th
 ---
 
 <p align="center"><strong>Built for expressive interfaces. Keep motion clear, measurable and accessible.</strong></p>
+
+
+### Dependency audit
+
+Run `npm run security` when registry access is available. It runs `npm audit --audit-level=high`; this command may fail offline if the npm audit service is unreachable.
+
+
+---
+
+*Kovari Code IDE ecosystem: `www.kovaricode.com` is planned; the website link will be activated after the domain and site are live.*
