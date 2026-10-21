@@ -49,12 +49,13 @@ try {
     namedLogo: 'speedtest',
     package: '@kovari/react-motion',
     packageVersion: packageJson.version,
+    sourceCommit: process.env.GITHUB_SHA || 'local',
     score: scoring.score,
     components: scoring.components,
     metrics: measured,
     methodology: browserResult.result.methodology,
     generatedAt: new Date().toISOString(),
-    runner: `ubuntu-latest / Chromium / Node ${process.version}`,
+    runner: `ubuntu-24.04 / Chromium / Node ${process.version}`,
     ranges: {
       red: '0–49',
       yellow: '50–69',
@@ -75,7 +76,7 @@ try {
     const summary = [
       '# Kovari React Motion — Motion Score',
       '',
-      `**Score: ${output.score}/100** · Tested npm release: **${output.packageVersion}** · Badge colour: **${output.color}**`,
+      `**Score: ${output.score}/100** · Package: **${output.packageVersion}** · Commit: **${output.sourceCommit}** · Badge colour: **${output.color}**`,
       '',
       '| Metric | Result |',
       '|---|---:|',

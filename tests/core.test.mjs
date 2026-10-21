@@ -101,7 +101,8 @@ test("React adapter can be created with an injected React-compatible implementat
   assert.equal(element.type, "button");
   assert.equal(element.props.style.opacity, 1);
   assert.equal(element.props.style.transform, "translateX(3px) translateY(4px) scale(2) rotate(5deg)");
-  assert.equal(element.props.style.transition, "all 120ms ease-out");
+  assert.match(element.props.style.transition, /transform 120ms ease-out/);
+  assert.ok(!element.props.style.transition.startsWith("all "));
   const centered = DivCenter({ children: "centered" }, null);
   assert.equal(centered.type, Div);
   assert.equal(centered.props.center, true);

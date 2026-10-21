@@ -1,6 +1,6 @@
 # Integration Guide — @kovari/react-motion
 
-This guide shows how to integrate the published primitives into a React application or a browser-only feature inside Kovari Code IDE. All imports below use the public `@kovari/react-motion` exports.
+This guide shows how to integrate the package primitives into a React application or a browser-only feature inside Kovari Code IDE. All imports below use the public `@kovari/react-motion` exports.
 
 ## Install and confirm the runtime
 

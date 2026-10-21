@@ -1,6 +1,6 @@
 # Kovari React Motion — Motion Score
 
-The **Motion Score** is a reproducible, project-specific benchmark index from **0 to 100** for the latest published `@kovari/react-motion` package. Zero is the lowest possible score; 100 is the highest possible score.
+The **Motion Score** is a reproducible, project-specific benchmark index from **0 to 100** for the `@kovari/react-motion` package built from the exact source commit under test. Zero is the lowest possible score; 100 is the highest possible score.
 
 - [Current score badge data](../motion-score.json)
 - [Motion Score workflow and historical runs](https://github.com/LoonCodeHunter/react-motion/actions/workflows/motion-score.yml)
@@ -49,7 +49,7 @@ It does not measure all React render costs, layout shifts, energy consumption, m
 
 ## Workflow lifecycle
 
-1. On a push to `main`, pull request, manual dispatch or weekly schedule, the read-only `benchmark` job installs the **latest published npm version** in a temporary workspace.
+1. On a push to `main`, pull request, manual dispatch or weekly schedule, the read-only `benchmark` job builds and packs the exact checked-out source into a local npm tarball, then installs that tarball in an isolated temporary workspace.
 2. The workflow installs Chromium, serves a small browser-only benchmark with Vite and collects metrics using Playwright.
 3. `score-runner.mjs` applies the shared scoring function and creates a Shields endpoint JSON document with `label`, `message`, and `color` fields.
 4. A validation step confirms the package identity, schema version, integer score bounds, allowed colours and component score ranges.
@@ -60,7 +60,7 @@ The `motion-score.json` path is ignored by the push trigger, and the score commi
 
 ## Run it
 
-From GitHub, open **Actions → Motion Score → Run workflow** and choose the default branch. The workflow deliberately measures the latest *published* npm release, not necessarily the source version in the repository. After publishing a release, run the workflow again to assess that release.
+From GitHub, open **Actions → Motion Score → Run workflow** and choose the default branch. The workflow measures the exact source commit selected by the event. It builds the checked-out source, installs that locally packed tarball in an isolated benchmark workspace, and records both the package version and `GITHUB_SHA` in the score output and job summary.
 
 Local source verification is separate:
 
@@ -73,4 +73,4 @@ npm run pack:dry
 npm run release:check
 ```
 
-These checks validate the source tree and npm package layout; they do not replace the browser benchmark against the public npm release.
+These checks validate the source tree and npm package layout; the Motion Score workflow separately benchmarks a local tarball built from the same checked-out source. The release gate uses `npm pack --dry-run`, not `npm publish --dry-run`, because npm 11 can reject a dry run when the current package version already exists on the registry.

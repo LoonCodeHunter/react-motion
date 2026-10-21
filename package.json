@@ -1,7 +1,7 @@
 {
   "name": "@kovari/react-motion",
-  "version": "0.1.2",
-  "description": "ESM-first motion primitives for React, TypeScript, JavaScript and Kovari Code IDE.",
+  "version": "1.0.0",
+  "description": "Modular Web Animations and React motion toolkit with physics-based drag, variants, presence, shared-layout geometry, timelines, composable values and accessible UI primitives.",
   "type": "module",
   "main": "./dist/es/index.js",
   "module": "./dist/es/index.js",
@@ -53,9 +53,9 @@
       "default": "./dist/es/motion-value.js"
     },
     "./react": {
-      "types": "./dist/types/react.d.ts",
-      "import": "./dist/es/react.js",
-      "default": "./dist/es/react.js"
+      "types": "./dist/types/react-bindings.d.ts",
+      "import": "./dist/es/react-bindings.js",
+      "default": "./dist/es/react-bindings.js"
     },
     "./scroll": {
       "types": "./dist/types/scroll.d.ts",
@@ -73,7 +73,158 @@
       "default": "./dist/es/timeline.js"
     },
     "./styles.css": "./dist/es/styles.css",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./adapters": {
+      "types": "./dist/types/adapters.d.ts",
+      "import": "./dist/es/adapters.js",
+      "default": "./dist/es/adapters.js"
+    },
+    "./drag": {
+      "types": "./dist/types/drag.d.ts",
+      "import": "./dist/es/drag.js",
+      "default": "./dist/es/drag.js"
+    },
+    "./interpolate": {
+      "types": "./dist/types/interpolate.d.ts",
+      "import": "./dist/es/interpolate.js",
+      "default": "./dist/es/interpolate.js"
+    },
+    "./spring-value": {
+      "types": "./dist/types/spring-value.d.ts",
+      "import": "./dist/es/spring-value.js",
+      "default": "./dist/es/spring-value.js"
+    },
+    "./transform": {
+      "types": "./dist/types/transform.d.ts",
+      "import": "./dist/es/transform.js",
+      "default": "./dist/es/transform.js"
+    },
+    "./variants": {
+      "types": "./dist/types/variants.d.ts",
+      "import": "./dist/es/variants.js",
+      "default": "./dist/es/variants.js"
+    },
+    "./react-adapter": {
+      "types": "./dist/types/react.d.ts",
+      "import": "./dist/es/react.js",
+      "default": "./dist/es/react.js"
+    },
+    "./react-client": {
+      "types": "./dist/types/react-bindings.d.ts",
+      "import": "./dist/es/react-bindings.js",
+      "default": "./dist/es/react-bindings.js"
+    },
+    "./keyframes": {
+      "types": "./dist/types/keyframes.d.ts",
+      "import": "./dist/es/keyframes.js",
+      "default": "./dist/es/keyframes.js"
+    },
+    "./presets": {
+      "types": "./dist/types/presets.d.ts",
+      "import": "./dist/es/presets.js",
+      "default": "./dist/es/presets.js"
+    },
+    "./ui": {
+      "types": "./dist/types/ui.d.ts",
+      "import": "./dist/es/ui.js",
+      "default": "./dist/es/ui.js"
+    },
+    "./ui.css": "./dist/es/ui.css",
+    "./controls": {
+      "types": "./dist/types/controls.d.ts",
+      "import": "./dist/es/controls.js",
+      "default": "./dist/es/controls.js"
+    },
+    "./inertia": {
+      "types": "./dist/types/inertia.d.ts",
+      "import": "./dist/es/inertia.js",
+      "default": "./dist/es/inertia.js"
+    },
+    "./shared-layout": {
+      "types": "./dist/types/shared-layout.d.ts",
+      "import": "./dist/es/shared-layout.js",
+      "default": "./dist/es/shared-layout.js"
+    },
+    "./presence": {
+      "types": "./dist/types/presence.d.ts",
+      "import": "./dist/es/presence.js",
+      "default": "./dist/es/presence.js"
+    },
+    "./sequence": {
+      "types": "./dist/types/sequence.d.ts",
+      "import": "./dist/es/sequence.js",
+      "default": "./dist/es/sequence.js"
+    },
+    "./observe": {
+      "types": "./dist/types/observe.d.ts",
+      "import": "./dist/es/observe.js",
+      "default": "./dist/es/observe.js"
+    },
+    "./timeline-builder": {
+      "types": "./dist/types/timeline-builder.d.ts",
+      "import": "./dist/es/timeline-builder.js",
+      "default": "./dist/es/timeline-builder.js"
+    },
+    "./motion-combine": {
+      "types": "./dist/types/motion-combine.d.ts",
+      "import": "./dist/es/motion-combine.js",
+      "default": "./dist/es/motion-combine.js"
+    },
+    "./provider-bridge": {
+      "types": "./dist/types/provider-bridge.d.ts",
+      "import": "./dist/es/provider-bridge.js",
+      "default": "./dist/es/provider-bridge.js"
+    },
+    "./adapter-factory": {
+      "types": "./dist/types/adapter-factory.d.ts",
+      "import": "./dist/es/adapter-factory.js",
+      "default": "./dist/es/adapter-factory.js"
+    },
+    "./pan": {
+      "types": "./dist/types/pan.d.ts",
+      "import": "./dist/es/pan.js",
+      "default": "./dist/es/pan.js"
+    },
+    "./scroll-scrub": {
+      "types": "./dist/types/scroll-scrub.d.ts",
+      "import": "./dist/es/scroll-scrub.js",
+      "default": "./dist/es/scroll-scrub.js"
+    },
+    "./adapter-registry": {
+      "types": "./dist/types/adapter-registry.d.ts",
+      "import": "./dist/es/adapter-registry.js",
+      "default": "./dist/es/adapter-registry.js"
+    },
+    "./inspector": {
+      "types": "./dist/types/inspector.d.ts",
+      "import": "./dist/es/inspector.js",
+      "default": "./dist/es/inspector.js"
+    },
+    "./web": {
+      "types": "./dist/types/web.d.ts",
+      "import": "./dist/es/web.js",
+      "default": "./dist/es/web.js"
+    },
+    "./svg": {
+      "types": "./dist/types/svg.d.ts",
+      "import": "./dist/es/svg.js",
+      "default": "./dist/es/svg.js"
+    },
+    "./canvas": {
+      "types": "./dist/types/canvas.d.ts",
+      "import": "./dist/es/canvas.js",
+      "default": "./dist/es/canvas.js"
+    },
+    "./desktop": {
+      "types": "./dist/types/desktop.d.ts",
+      "import": "./dist/es/desktop.js",
+      "default": "./dist/es/desktop.js"
+    },
+    "./devtools": {
+      "types": "./dist/types/devtools.d.ts",
+      "import": "./dist/es/devtools.js",
+      "default": "./dist/es/devtools.js"
+    }
   },
   "files": [
     "dist/es",
@@ -83,7 +234,8 @@
     "LICENSE",
     "CHANGELOG.md",
     "VALIDATION.md",
-    "docs"
+    "docs",
+    "examples"
   ],
   "sideEffects": [
     "**/*.css"
@@ -112,7 +264,37 @@
     "layout",
     "typescript",
     "esm",
-    "kovari"
+    "kovari",
+    "variants",
+    "presence",
+    "drag",
+    "accessibility",
+    "web-animations",
+    "canvas",
+    "flipping",
+    "ui",
+    "components",
+    "design-system",
+    "inertia",
+    "timeline-builder",
+    "shared-layout",
+    "stagger",
+    "motion-controls",
+    "motion-components",
+    "external-provider-adapter",
+    "interoperability",
+    "swipe",
+    "pan",
+    "scrubbing",
+    "telemetry",
+    "lazy-adapter",
+    "diagnostics",
+    "electron",
+    "tauri",
+    "svg",
+    "canvas-animation",
+    "webview",
+    "performance-profiling"
   ],
   "engines": {
     "node": ">=20.19"
@@ -126,11 +308,15 @@
     "test": "npm run build && node --test tests/*.test.mjs",
     "check": "npm run typecheck && npm test && npm run pack:dry",
     "pack:dry": "npm pack --dry-run --ignore-scripts",
-    "publish:dry": "npm publish --dry-run --access public --ignore-scripts --provenance=false",
     "prepack": "npm run check",
     "pack:verify": "node scripts/verify.mjs",
     "security": "npm audit --audit-level=high",
-    "release:check": "npm run check && npm run pack:verify && npm run pack:dry && npm run publish:dry"
+    "release:check": "npm run verify:lockfile && npm run badges:check && npm run docs:check && npm run check && npm run pack:verify",
+    "verify:lockfile": "node scripts/verify-package-lock.mjs",
+    "docs:check": "node scripts/verify-docs.mjs",
+    "badges:check": "node scripts/verify-badges.mjs",
+    "test:unit": "node --test tests/*.test.mjs",
+    "test:release": "npm run typecheck && npm test && npm run docs:check && npm run badges:check"
   },
   "publishConfig": {
     "access": "public",

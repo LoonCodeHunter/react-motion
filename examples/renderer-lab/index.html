@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b0d18" />
+  <title>Kovari Motion v1 — Renderer Laboratory</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="ambient ambient-a" aria-hidden="true"></div><div class="ambient ambient-b" aria-hidden="true"></div>
+  <div class="shell">
+    <nav class="topbar" aria-label="Product navigation">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">◈</span><span>KOVARI <strong>MOTION</strong></span></div>
+      <div class="nav-meta"><span class="version">VERSION 1.0.0</span><span class="live"><i></i> RENDERER LAB</span></div>
+    </nav>
+    <header class="hero">
+      <div class="eyebrow">WEB. DESKTOP. BEYOND.</div>
+      <h1>Every interaction,<br /><em>beautifully in motion.</em></h1>
+      <p>Explore real animation primitives—native browser keyframes, SVG linework, Canvas interpolation and live frame diagnostics. Designed for both web and desktop renderers.</p>
+      <div class="hero-actions"><button type="button" id="play-all" class="primary">Play the showcase <span>↗</span></button><a href="../../docs/API-SURFACES-v1.md" class="secondary">Read the API guide <span>↗</span></a></div>
+    </header>
+    <section class="stats" aria-label="Renderer technology"><div><span>05</span><small>renderer surfaces</small></div><div><span>WAAPI</span><small>browser-native keyframes</small></div><div><span>0</span><small>external runtime dependencies</small></div><div><span>1.0.0</span><small>source version</small></div></section>
+    <div class="section-title"><div><span class="eyebrow">INTERACTIVE WORKBENCH</span><h2>Motion in practice.</h2></div><p>Use the controls below to trigger animation. Respect your system's reduced-motion setting.</p></div>
+    <main class="grid">
+      <section class="lab lab-wide"><div class="lab-head"><div class="lab-index">01 / WEB ANIMATIONS</div><span class="pill">DOM API</span></div><h3>Orchestrated entrances.</h3><p>Native compositor-friendly animation, individual scopes, guaranteed teardown.</p>
+        <div id="cards" class="card-stage"><div class="floating-tile"><span>✦</span><strong>Expressive</strong></div><div class="floating-tile"><span>◇</span><strong>Precise</strong></div><div class="floating-tile"><span>◈</span><strong>Fluid</strong></div></div>
+        <button id="replay-dom" type="button" class="subtle">Replay animation <span>↗</span></button>
+      </section>
+      <section class="lab"><div class="lab-head"><div class="lab-index">02 / SVG</div><span class="pill">PATH DRAW</span></div><h3>Art in every curve.</h3><p>Draw a path directly from native SVG geometry.</p>
+        <div class="svg-stage"><svg viewBox="0 0 300 140" role="img" aria-label="Smooth lavender line winding through three waves"><defs><linearGradient id="line" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ad8bff"/><stop offset="1" stop-color="#57e5df"/></linearGradient></defs><path id="signature" d="M 15 99 C 50 98, 48 28, 96 39 S 153 134, 194 70 S 264 45, 287 24" fill="none" stroke="url(#line)" stroke-width="6" stroke-linecap="round" /></svg></div>
+        <button id="replay-svg" type="button" class="subtle">Redraw SVG <span>↗</span></button>
+      </section>
+      <section class="lab"><div class="lab-head"><div class="lab-index">03 / CANVAS</div><span class="pill">NUMERIC TWEEN</span></div><h3>Precision by the frame.</h3><p>Typed numeric state drives a custom canvas painter.</p><canvas id="tween" width="500" height="180" aria-label="Animation of a glowing orb travelling horizontally" role="img">A moving orb illustration.</canvas>
+        <button id="replay-canvas" type="button" class="subtle">Replay Canvas <span>↗</span></button>
+      </section>
+      <section class="lab lab-wide diagnostic"><div><div class="lab-head"><div class="lab-index">04 / PERFORMANCE</div><span class="pill">DIAGNOSTICS</span></div><h3>Measure the experience.</h3><p>Locally sampled animation-frame spacing; no uploads, no analytics and no hidden observers.</p><div class="metric-strip"><div><small>AVERAGE FPS</small><b id="metric-fps">—</b></div><div><small>P95 FRAME</small><b id="metric-p95">—</b></div><div><small>SLOW FRAMES</small><b id="metric-slow">—</b></div></div></div>
+        <div class="diagnostic-right"><div class="reading-status"><span class="pulse"></span><span id="profiler-status">Sampling in renderer</span></div><button type="button" id="toggle-hud" class="subtle">Show developer HUD ↗</button><button type="button" id="toggle-monitor" class="subtle">Pause sampler</button></div>
+      </section>
+    </main>
+    <footer><span>KOVARI MOTION · V1.0.0</span><span>Native browser APIs. Distinct expressive motion.</span></footer>
+  </div>
+  <script type="module" src="./main.js"></script>
+</body></html>
